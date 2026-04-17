@@ -1,16 +1,26 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Attendance from "./pages/Attendance";
 import Leaves from "./pages/Leaves";
+import Login from "./pages/Login";
 
 function App() {
+  const location = useLocation();
+  const user = localStorage.getItem("user");
+
   return (
     <MainLayout>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/leaves" element={<Leaves />} />
+        {!user ? (
+          <Route path="*" element={<Login />} />
+        ) : (
+          <>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/attendance" element={<Attendance />} />
+            <Route path="/leaves" element={<Leaves />} />
+          </>
+        )}
       </Routes>
     </MainLayout>
   );
