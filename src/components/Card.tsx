@@ -8,12 +8,13 @@ type Props = {
 function Card({ title, children, className = "", headerAction }: Props) {
   return (
     <div className={`premium-card ${className}`} style={{
-      background: "#fff",
+      background: "var(--bg-card)",
       padding: "24px",
       borderRadius: "var(--border-radius-lg)",
-      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      boxShadow: "var(--shadow-card)",
       border: "1px solid var(--border-light)",
-      height: "100%"
+      height: "100%",
+      transition: "var(--transition-theme)"
     }}>
       {(title || headerAction) && (
         <div style={{ 

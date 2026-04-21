@@ -67,7 +67,7 @@ function AttendanceChart() {
                 <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border-light)" opacity={0.5} />
             <XAxis 
               dataKey="day" 
               axisLine={false} 
@@ -83,8 +83,10 @@ function AttendanceChart() {
             <Tooltip 
               contentStyle={{ 
                 borderRadius: "12px", 
-                border: "none", 
-                boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                border: "1px solid var(--border-light)", 
+                background: "var(--bg-card)",
+                color: "var(--text-main)",
+                boxShadow: "var(--shadow-card)",
                 padding: "10px"
               }}
               cursor={{ stroke: 'var(--primary)', strokeWidth: 1, strokeDasharray: '4 4' }}

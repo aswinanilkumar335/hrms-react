@@ -22,20 +22,17 @@
 /* Latest Floating Sidebar Design */
 .sidebar {
   height: calc(100vh - 24px);
-  background: #0f172a;
+  background: var(--sidebar-bg);
   /* Deep Slate/Indigo */
   color: var(--sidebar-text);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  transition: var(--transition-sidebar);
+  transition: var(--transition-sidebar), var(--transition-theme);
   position: sticky;
   top: 12px;
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  overflow: hidden;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-sidebar);
+  border: 1px solid var(--sidebar-divider);
 }
 
 .sidebar.expanded {
@@ -83,12 +80,12 @@
   font-weight: 700;
   font-size: 18px;
   letter-spacing: -0.5px;
-  color: white;
+  color: var(--sidebar-text);
 }
 
 .collapse-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sidebar-search-bg);
+  border: 1px solid var(--sidebar-search-border);
   color: var(--sidebar-text-muted);
   cursor: pointer;
   padding: 6px;
@@ -100,7 +97,8 @@
 }
 
 .collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--sidebar-item-active-bg);
+  opacity: 0.9;
   color: white;
 }
 
@@ -116,7 +114,7 @@
 
 .search-icon {
   position: absolute;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--sidebar-search-icon);
   z-index: 1;
 }
 
@@ -131,19 +129,19 @@
 
 .search-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sidebar-search-bg);
+  border: 1px solid var(--sidebar-search-border);
   border-radius: 12px;
   padding: 10px 14px 10px 42px;
-  color: white;
+  color: var(--sidebar-text);
   font-size: 13px;
   outline: none;
-  transition: all 0.2s ease;
+  transition: var(--transition-theme);
 }
 
 .search-input:focus {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(99, 102, 241, 0.5);
+  background: var(--sidebar-search-bg);
+  border-color: var(--primary);
 }
 
 .nav-list {
@@ -159,7 +157,7 @@
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--sidebar-text-muted);
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
@@ -171,8 +169,8 @@
 }
 
 .nav-item:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--sidebar-search-bg);
+  color: var(--sidebar-text);
 }
 
 .nav-item.active {
@@ -191,7 +189,7 @@
   flex-direction: column;
   gap: 10px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--sidebar-divider);
 }
 
 /* User Profile Styling */
@@ -208,7 +206,7 @@
 .user-avatar-collapsed {
   width: 32px;
   height: 32px;
-  background: #334155;
+  background: var(--primary);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -232,7 +230,7 @@
 .user-name {
   font-size: 13px;
   font-weight: 600;
-  color: white;
+  color: var(--sidebar-text);
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -240,7 +238,7 @@
 
 .user-role {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--sidebar-text-muted);
 }
 
 .settings-btn,
@@ -263,7 +261,7 @@
 }
 
 .settings-btn {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--sidebar-text-muted);
 }
 
 .logout-btn {
@@ -272,8 +270,8 @@
 }
 
 .settings-btn:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: white;
+  background: var(--sidebar-search-bg);
+  color: var(--sidebar-text);
 }
 
 .logout-btn:hover {
@@ -283,9 +281,9 @@
 .main-content {
   flex: 1;
   padding: 24px;
-  background: white;
+  background: var(--bg-card);
   min-height: calc(100vh - 24px);
-  transition: var(--transition-fast);
+  transition: var(--transition-theme);
   border-radius: 20px;
   border: 1px solid var(--border-light);
   overflow-y: auto;

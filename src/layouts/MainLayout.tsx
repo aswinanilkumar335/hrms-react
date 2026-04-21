@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  CalendarCheck,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Settings,
-  LogOut
-} from "lucide-react";
+import { Moon, Sun, LayoutDashboard, CalendarCheck, FileText, ChevronLeft, ChevronRight, Search, Settings, LogOut } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 import "./MainLayout.css";
 
 function MainLayout({ children }: { children: React.ReactNode }) {
+  const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
@@ -104,6 +97,11 @@ function MainLayout({ children }: { children: React.ReactNode }) {
               {userName.charAt(0)}
             </div>
           )}
+
+          <div className="settings-btn" onClick={toggleTheme}>
+            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+            {!collapsed && <span className="btn-label">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>}
+          </div>
 
           <div className="settings-btn">
             <Settings size={20} />
