@@ -1,22 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Users, Clock, Calendar, Briefcase, TrendingUp, CalendarDays } from "lucide-react";
 import Card from "../components/Card";
 import PunchButton from "../components/PunchButton";
 import AttendanceChart from "../components/AttendanceChart";
+import CalendarPopover from "../components/CalendarPopover";
 import "./Dashboard.css";
 
 function Dashboard() {
   const [punchInTime, setPunchInTime] = useState<Date | null>(null);
   const [punchOutTime, setPunchOutTime] = useState<Date | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const headerDateRef = useRef<HTMLDivElement>(null);
 
   const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
   const userName = user?.name || "User";
 
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
       const res = await fetch("http://localhost:3001/attendance");
       const records = await res.json();
+
+      setAttendanceRecords(records); // ✅ store all data
 
       const today = new Date().toDateString();
       const todayRecord = records.find((r: any) => r.date === today);
@@ -40,14 +47,30 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const formatDate = () => {
-    return new Intl.DateTimeFormat('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    }).format(new Date());
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(selectedDate);
   };
+
+  const handleCalendarClick = () => {
+    setShowCalendar(!showCalendar);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerDateRef.current && !headerDateRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -57,11 +80,21 @@ function Dashboard() {
           <h1>Good Morning, {userName} 👋</h1>
           <p>Here's what's happening with your HR portal today.</p>
         </div>
-        <div className="header-date">
-          <div className="date-text">
+        <div className="header-date" ref={headerDateRef}>
+          <div 
+            className={`date-text clickable ${showCalendar ? 'active' : ''}`} 
+            onClick={handleCalendarClick}
+          >
             <Calendar size={18} />
             {formatDate()}
           </div>
+          {showCalendar && (
+            <CalendarPopover 
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+              onClose={() => setShowCalendar(false)}
+            />
+          )}
         </div>
       </header>
 
@@ -81,7 +114,7 @@ function Dashboard() {
           </div>
           <div className="stat-info">
             <h3>Team Size</h3>
-            <p>24 Active</p>
+            <p>{attendanceRecords.length} Records</p>
           </div>
         </div>
         <div className="stat-card">
@@ -90,8 +123,9 @@ function Dashboard() {
           </div>
           <div className="stat-info">
             <h3>Applied Leaves</h3>
-            <p>02 Pending</p>
-          </div>
+            <p>
+              {attendanceRecords.filter((r: any) => !r.out).length} Active
+            </p>          </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b" }}>
@@ -99,8 +133,11 @@ function Dashboard() {
           </div>
           <div className="stat-info">
             <h3>Attendance</h3>
-            <p>94% Quality</p>
-          </div>
+            <p>
+              {attendanceRecords.length > 0
+                ? Math.min(100, attendanceRecords.length * 10) + "%"
+                : "0%"}
+            </p>          </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
@@ -116,20 +153,20 @@ function Dashboard() {
       {/* Main Grid Actions */}
       <div className="main-grid">
         <div className="main-left">
-          <Card 
-            title="Attendance Insights" 
+          <Card
+            title="Attendance Insights"
             headerAction={<div style={{ color: "var(--text-muted)", fontSize: "13px" }}>Weekly View</div>}
           >
             <AttendanceChart />
           </Card>
         </div>
-        
+
         <div className="main-right">
           <div style={{ display: "flex", flexDirection: "column", gap: "24px", height: "100%" }}>
             <Card title="Punch Station">
               <PunchButton />
             </Card>
-            
+
             <Card title="Quick Tasks">
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "var(--bg-main)", borderRadius: "var(--border-radius-md)" }}>
