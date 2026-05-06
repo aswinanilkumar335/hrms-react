@@ -1,7 +1,7 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .dashboard-header {
@@ -74,7 +74,7 @@
 .welcome-banner {
   background: var(--accent-gradient);
   border-radius: var(--border-radius-lg);
-  padding: 32px;
+  padding: 24px;
   color: white;
   position: relative;
   overflow: hidden;
@@ -107,12 +107,12 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 12px;
 }
 
 .stat-card {
   background: var(--bg-card);
-  padding: 20px;
+  padding: 16px;
   border-radius: var(--border-radius-lg);
   display: flex;
   align-items: center;
@@ -153,7 +153,7 @@
 .main-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: 16px;
 }
 
 @media (max-width: 1024px) {

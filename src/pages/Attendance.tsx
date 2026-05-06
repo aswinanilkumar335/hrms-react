@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { 
   Calendar, 
   Clock, 
@@ -6,18 +6,32 @@ import {
   ArrowRight, 
   CheckCircle2, 
   AlertCircle,
-  TrendingUp,
   History,
   Search,
   Filter,
   Download,
   MoreHorizontal,
-  Coffee
+  Coffee,
+  X
 } from "lucide-react";
+import AttendanceVisualizer from "../components/AttendanceVisualizer";
 import "./Attendance.css";
 
+interface Session {
+  in: string;
+  out: string | null;
+}
+
+interface AttendanceRecord {
+  date: string;
+  sessions: Session[];
+  id?: number;
+}
+
 function Attendance() {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [stats, setStats] = useState({ 
     totalDays: 0, 
     avgHours: "0h 0m", 
@@ -33,46 +47,79 @@ function Attendance() {
     try {
       const res = await fetch("http://localhost:3001/attendance");
       const data = await res.json();
-      const reversedData = [...data].reverse();
+      
+      // Normalize data: ensure all records have sessions
+      const normalizedData = data.map((item: any) => {
+        if (!item.sessions && item.in) {
+          return {
+            ...item,
+            sessions: [{ in: item.in, out: item.out }]
+          };
+        }
+        return item;
+      });
+
+      const reversedData = [...normalizedData].reverse();
       setRecords(reversedData);
-      calculateStats(data);
+      calculateStats(normalizedData);
     } catch (error) {
       console.error("Error fetching attendance:", error);
     }
   };
 
-  const calculateStats = (data: any[]) => {
+  const calculateStats = (data: AttendanceRecord[]) => {
     if (data.length === 0) return;
     
     let totalSeconds = 0;
     let lateDays = 0;
     
     data.forEach(day => {
-      day.sessions?.forEach((s: any) => {
-        if (s.in && s.out) {
-          const duration = (new Date(s.out).getTime() - new Date(s.in).getTime()) / 1000;
-          totalSeconds += duration;
+      let daySeconds = 0;
+      let firstIn: Date | null = null;
+
+      if (day.sessions) {
+        for (const s of day.sessions) {
+          if (s.in) {
+            const inDate = new Date(s.in);
+            if (!firstIn || inDate.getTime() < firstIn.getTime()) {
+              firstIn = inDate;
+            }
+
+            if (s.out) {
+              const duration = (new Date(s.out).getTime() - inDate.getTime()) / 1000;
+              daySeconds += duration;
+            }
+          }
         }
-        
-        // Simulating "late" if first punch in is after 10 AM
-        if (s.in && new Date(s.in).getHours() >= 10) {
-          lateDays++;
-        }
-      });
+      }
+
+      totalSeconds += daySeconds;
+      
+      // Late if first punch in is after 10 AM
+      if (firstIn && firstIn.getHours() >= 10) {
+        lateDays++;
+      }
     });
 
     const avgSeconds = totalSeconds / data.length;
     const h = Math.floor(avgSeconds / 3600);
     const m = Math.floor((avgSeconds % 3600) / 60);
 
-    const overtimeSec = Math.max(0, totalSeconds - (data.length * 8 * 3600));
+    const overtimeSec = data.reduce((acc, day) => {
+      let daySec = 0;
+      day.sessions?.forEach(s => {
+        if (s.in && s.out) daySec += (new Date(s.out).getTime() - new Date(s.in).getTime()) / 1000;
+      });
+      return acc + Math.max(0, daySec - (8 * 3600));
+    }, 0);
+
     const oh = Math.floor(overtimeSec / 3600);
     const om = Math.floor((overtimeSec % 3600) / 60);
     
     setStats({
       totalDays: data.length,
       avgHours: `${h}h ${m}m`,
-      lateCount: Math.floor(lateDays / 2), // Approximation
+      lateCount: lateDays,
       overtime: `${oh}h ${om}m`
     });
   };
@@ -85,17 +132,60 @@ function Attendance() {
     return `${h}h ${m}m`;
   };
 
-  const getTotalHours = (sessions: any[]) => {
+  const getTotalSeconds = (sessions: Session[]) => {
     let totalSeconds = 0;
     sessions?.forEach((s) => {
       if (s.in && s.out) {
         totalSeconds += (new Date(s.out).getTime() - new Date(s.in).getTime()) / 1000;
       }
     });
+    return totalSeconds;
+  };
 
+  const getTotalHours = (sessions: Session[]) => {
+    const totalSeconds = getTotalSeconds(sessions);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     return `${hours}h ${minutes}m`;
+  };
+
+  const filteredRecords = useMemo(() => {
+    return records.filter(record => {
+      const matchesSearch = record.date.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (activeFilter === "full") {
+        return matchesSearch && getTotalSeconds(record.sessions) >= 8 * 3600;
+      }
+      if (activeFilter === "breaks") {
+        return matchesSearch && (record.sessions?.length || 0) > 1;
+      }
+      
+      return matchesSearch;
+    });
+  }, [records, searchQuery, activeFilter]);
+
+  const exportCSV = () => {
+    const headers = ["Date", "Sessions", "Total Hours"];
+    const rows = filteredRecords.map(r => [
+      r.date,
+      r.sessions.length,
+      getTotalHours(r.sessions)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `attendance_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -122,18 +212,31 @@ function Attendance() {
         </div>
       </header>
 
+      {/* Day-wise Visualizer */}
+      <AttendanceVisualizer records={records} />
+
       {/* Toolbar Section */}
       <div className="attendance-toolbar">
         <div className="search-bar">
           <Search size={16} />
-          <input type="text" placeholder="Search by date or session..." />
+          <input 
+            type="text" 
+            placeholder="Search by date..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="clear-search" onClick={() => setSearchQuery("")}>
+              <X size={14} />
+            </button>
+          )}
         </div>
         <div className="toolbar-actions">
           <button className="toolbar-btn">
             <Filter size={16} />
             Filters
           </button>
-          <button className="toolbar-btn primary">
+          <button className="toolbar-btn primary" onClick={exportCSV}>
             <Download size={16} />
             Export CSV
           </button>
@@ -142,15 +245,24 @@ function Attendance() {
 
       {/* Summary Row */}
       <div className="summary-pills">
-        <div className="summary-pill active">
+        <div 
+          className={`summary-pill ${activeFilter === "all" ? "active" : ""}`}
+          onClick={() => setActiveFilter("all")}
+        >
           <History size={14} />
           All History
         </div>
-        <div className="summary-pill">
+        <div 
+          className={`summary-pill ${activeFilter === "full" ? "active" : ""}`}
+          onClick={() => setActiveFilter("full")}
+        >
           <CheckCircle2 size={14} />
           Full Attendance
         </div>
-        <div className="summary-pill">
+        <div 
+          className={`summary-pill ${activeFilter === "breaks" ? "active" : ""}`}
+          onClick={() => setActiveFilter("breaks")}
+        >
           <Coffee size={14} />
           Breaks Taken
         </div>
@@ -158,14 +270,14 @@ function Attendance() {
 
       {/* Main List */}
       <div className="attendance-list">
-        {records.length === 0 ? (
+        {filteredRecords.length === 0 ? (
           <div className="empty-state">
             <AlertCircle size={48} />
-            <p>No records found for your account.</p>
+            <p>{records.length === 0 ? "No records found for your account." : "No records match your search/filter."}</p>
           </div>
         ) : (
-          records.map((item: any, index: number) => (
-            <div key={index} className="attendance-record-card">
+          filteredRecords.map((item: AttendanceRecord, index: number) => (
+            <div key={item.id || index} className="attendance-record-card">
               <div className="record-header">
                 <div className="record-date">
                   <Calendar size={18} />
@@ -184,7 +296,7 @@ function Attendance() {
 
               <div className="record-body">
                 <div className="sessions-grid">
-                  {item.sessions?.map((s: any, i: number) => (
+                  {item.sessions?.map((s: Session, i: number) => (
                     <div key={i} className="session-item">
                       <div className="session-icon">
                         <Clock size={16} />

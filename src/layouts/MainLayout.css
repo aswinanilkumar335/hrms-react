@@ -2,8 +2,8 @@
   display: flex;
   min-height: 100vh;
   background: var(--bg-main);
-  padding: 12px;
-  gap: 12px;
+  padding: 10px;
+  gap: 10px;
 }
 
 .no-user-layout {
@@ -25,7 +25,7 @@
   background: var(--sidebar-bg);
   /* Deep Slate/Indigo */
   color: var(--sidebar-text);
-  padding: 24px 16px;
+  padding: 20px 14px;
   display: flex;
   flex-direction: column;
   transition: var(--transition-sidebar), var(--transition-theme);
@@ -46,7 +46,7 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .sidebar.expanded .sidebar-header {
@@ -103,7 +103,7 @@
 }
 
 .search-container {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .search-wrapper {
@@ -148,7 +148,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .nav-item {
@@ -187,8 +187,8 @@
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 20px;
+  gap: 6px;
+  padding-top: 16px;
   border-top: 1px solid var(--sidebar-divider);
 }
 
@@ -280,7 +280,7 @@
 
 .main-content {
   flex: 1;
-  padding: 24px;
+  padding: var(--main-padding);
   background: var(--bg-card);
   min-height: calc(100vh - 24px);
   transition: var(--transition-theme);

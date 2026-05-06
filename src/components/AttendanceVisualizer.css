@@ -1,0 +1,244 @@
+.attendance-visualizer-card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-theme);
+  margin-bottom: 16px;
+}
+
+.visualizer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-title-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.visualizer-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-main);
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border-light);
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--text-main);
+}
+
+.current-month {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 100px;
+  text-align: center;
+}
+
+.visualizer-legend {
+  display: flex;
+  gap: 16px;
+  background: var(--bg-main);
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border-light);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legend-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.visualizer-scroll-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.days-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 10px 0 20px;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.days-row::-webkit-scrollbar {
+  display: none; /* Hide scrollbar Chrome/Safari */
+}
+
+.day-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 32px;
+  position: relative;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.day-column.today {
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.day-column.today::after {
+  content: 'Today';
+  position: absolute;
+  bottom: -15px;
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.day-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.day-column.present .day-number,
+.day-column.late .day-number,
+.day-column.half-day .day-number {
+  color: var(--text-main);
+}
+
+.day-column.half-day .day-number {
+    color: #ef4444;
+}
+
+.status-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.status-dot.present {
+  background: #22c55e;
+  color: white;
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+.status-dot.late {
+  background: #f97316;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
+
+.status-dot.half-day {
+  background: transparent;
+  border: 3px solid #ef4444;
+  position: relative;
+  overflow: hidden;
+}
+
+.half-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: #ef4444;
+}
+
+.status-dot.day-off {
+  background: #8b5cf6;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+}
+
+.status-dot.empty {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .status-dot.empty {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.status-star {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d946ef;
+}
+
+.scroll-next-btn {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: var(--text-main);
+  z-index: 10;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .scroll-next-btn {
+    background: var(--bg-card);
+}
+
+.scroll-next-btn:hover {
+  background: var(--bg-main);
+  transform: translateY(-50%) scale(1.05);
+}

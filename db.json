@@ -89,6 +89,20 @@
         }
       ],
       "id": 5
+    },
+    {
+      "date": "Wed May 06 2026",
+      "sessions": [
+        {
+          "in": "2026-05-06T09:56:53.914Z",
+          "out": "2026-05-06T10:10:00.264Z"
+        },
+        {
+          "in": "2026-05-06T10:10:01.247Z",
+          "out": null
+        }
+      ],
+      "id": 6
     }
   ],
   "users": [
@@ -104,5 +118,43 @@
       "name": "Aswin",
       "id": 2
     }
-  ]
+  ],
+  "leaves": [
+    {
+      "id": 1,
+      "type": "Sick Leave",
+      "startDate": "2026-03-10",
+      "endDate": "2026-03-11",
+      "days": 2,
+      "reason": "Flu and fever",
+      "status": "Approved",
+      "appliedDate": "2026-03-09"
+    },
+    {
+      "id": 2,
+      "type": "Casual Leave",
+      "startDate": "2026-04-15",
+      "endDate": "2026-04-15",
+      "days": 1,
+      "reason": "Personal work",
+      "status": "Approved",
+      "appliedDate": "2026-04-12"
+    },
+    {
+      "type": "Casual Leave",
+      "startDate": "2026-05-06",
+      "endDate": "2026-05-06",
+      "days": 1,
+      "reason": "Personal Reason",
+      "status": "Pending",
+      "appliedDate": "2026-05-06",
+      "id": 3
+    }
+  ],
+  "leave_balances": {
+    "sick": 12,
+    "casual": 10,
+    "paid": 18,
+    "unpaid": 0
+  }
 }

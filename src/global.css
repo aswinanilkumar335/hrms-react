@@ -38,10 +38,10 @@
   /* Layout */
   --sidebar-width-expanded: 260px;
   --sidebar-width-collapsed: 88px;
-  --main-padding: 24px;
-  --border-radius-lg: 20px;
-  --border-radius-md: 12px;
-  --border-radius-sm: 8px;
+  --main-padding: 20px;
+  --border-radius-lg: 16px;
+  --border-radius-md: 10px;
+  --border-radius-sm: 6px;
 
   /* Transitions */
   --transition-sidebar: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
