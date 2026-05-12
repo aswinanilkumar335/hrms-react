@@ -7,6 +7,7 @@ import {
     signupUser,
     getUsers,
 } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ function Login() {
     const [name, setName] = useState("");
     const [isSignup, setIsSignup] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const { login } = useAuth();
 
     const navigate = useNavigate();
 
@@ -22,7 +24,7 @@ function Login() {
             const user = await loginUser(email, password);
 
             if (user) {
-                localStorage.setItem("user", JSON.stringify(user));
+                login(user);
                 navigate("/");
             } else {
                 alert("Invalid credentials");

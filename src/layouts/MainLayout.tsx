@@ -2,13 +2,13 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Moon, Sun, LayoutDashboard, CalendarCheck, FileText, ChevronLeft, ChevronRight, Search, Settings, LogOut } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import "./MainLayout.css";
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
+  const { user, logout } = useAuth();
   const userName = user?.name || "User";
 
   if (!user) {
@@ -109,8 +109,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div
             onClick={() => {
-              localStorage.removeItem("user");
-              window.location.reload();
+              logout();
             }}
             className="logout-btn"
           >

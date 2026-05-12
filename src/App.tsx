@@ -4,9 +4,10 @@ import Dashboard from "./pages/Dashboard";
 import Attendance from "./pages/Attendance";
 import Leaves from "./pages/Leaves";
 import Login from "./pages/Login";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const user = localStorage.getItem("user");
+  const { user } = useAuth();
 
   return (
     <MainLayout>
