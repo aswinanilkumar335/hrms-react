@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Attendance from "./pages/Attendance";
@@ -6,7 +6,6 @@ import Leaves from "./pages/Leaves";
 import Login from "./pages/Login";
 
 function App() {
-  const location = useLocation();
   const user = localStorage.getItem("user");
 
   return (

@@ -1,16 +1,67 @@
 import { useEffect, useState } from "react";
+import { Fingerprint, LogOut, LogIn } from "lucide-react";
+import {
+  getAttendance,
+  createAttendance,
+  updateAttendance,
+} from "../services/attendanceService";
+import "./PunchButton.css";
 
 function PunchButton() {
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [punchInTime, setPunchInTime] = useState<Date | null>(null);
   const [punchOutTime, setPunchOutTime] = useState<Date | null>(null);
   const [workedHours, setWorkedHours] = useState<string>("--");
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [progress, setProgress] = useState(0);
+
+  // Constants
+  const WORK_DAY_SECONDS = 8 * 3600;
+
+  // Clock & Progress Update
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now);
+      
+      if (isPunchedIn && punchInTime) {
+        // Recalculate total seconds including current active session
+        updateRealtimeProgress(now);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isPunchedIn, punchInTime]);
+
+  const calculateTotalSeconds = (sessions: any[], activeSessionNow?: Date) => {
+    let total = 0;
+    sessions.forEach((s: any) => {
+      if (s.in && s.out) {
+        total += (new Date(s.out).getTime() - new Date(s.in).getTime()) / 1000;
+      } else if (s.in && !s.out && activeSessionNow) {
+        total += (activeSessionNow.getTime() - new Date(s.in).getTime()) / 1000;
+      }
+    });
+    return total;
+  };
+
+  const updateRealtimeProgress = (now: Date) => {
+    // This is called while punched in to update the ring and hours
+    getAttendance().then(records => {
+      const today = new Date().toDateString();
+      const todayRecord = records.find((r: any) => r.date === today);
+      if (todayRecord) {
+        const totalSecs = calculateTotalSeconds(todayRecord.sessions, now);
+        const hours = Math.floor(totalSecs / 3600);
+        const minutes = Math.floor((totalSecs % 3600) / 60);
+        setWorkedHours(`${hours}h ${minutes}m`);
+        setProgress(Math.min(100, (totalSecs / WORK_DAY_SECONDS) * 100));
+      }
+    });
+  };
 
   const fetchTodayData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/attendance");
-      const records = await res.json();
-
+      const records = await getAttendance();
       const today = new Date().toDateString();
       const todayRecord = records.find((r: any) => r.date === today);
 
@@ -18,27 +69,22 @@ function PunchButton() {
         const sessions = todayRecord.sessions || [];
         const lastSession = sessions[sessions.length - 1];
 
-        setIsPunchedIn(!!(lastSession && !lastSession.out));
+        const punchedIn = !!(lastSession && !lastSession.out);
+        setIsPunchedIn(punchedIn);
         setPunchInTime(lastSession?.in ? new Date(lastSession.in) : null);
         setPunchOutTime(lastSession?.out ? new Date(lastSession.out) : null);
 
-        // Calculate worked hours
-        let totalSeconds = 0;
-        sessions.forEach((s: any) => {
-          if (s.in && s.out) {
-            totalSeconds +=
-              (new Date(s.out).getTime() - new Date(s.in).getTime()) / 1000;
-          }
-        });
-
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const totalSecs = calculateTotalSeconds(sessions, punchedIn ? new Date() : undefined);
+        const hours = Math.floor(totalSecs / 3600);
+        const minutes = Math.floor((totalSecs % 3600) / 60);
         setWorkedHours(`${hours}h ${minutes}m`);
+        setProgress(Math.min(100, (totalSecs / WORK_DAY_SECONDS) * 100));
       } else {
         setIsPunchedIn(false);
         setPunchInTime(null);
         setPunchOutTime(null);
         setWorkedHours("--");
+        setProgress(0);
       }
     } catch (error) {
       console.error("Error fetching today's data:", error);
@@ -49,87 +95,116 @@ function PunchButton() {
     fetchTodayData();
   }, []);
 
-  //  Handle Punch
   const handlePunch = async () => {
     try {
       const now = new Date();
       const today = new Date().toDateString();
-
-      const res = await fetch("http://localhost:3001/attendance");
-      const records = await res.json();
-
+      const records = await getAttendance();
       let todayRecord = records.find((r: any) => r.date === today);
 
       if (!todayRecord) {
-        // ✅ First punch of the day
-        await fetch("http://localhost:3001/attendance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            date: today,
-            sessions: [{ in: now, out: null }]
-          }),
+        await createAttendance({
+          date: today,
+          sessions: [{ in: now, out: null }]
         });
-
       } else {
         const sessions = todayRecord.sessions || [];
         const lastSession = sessions[sessions.length - 1];
 
-        if (!lastSession.out) {
-          // ✅ Punch OUT
+        if (lastSession && !lastSession.out) {
           lastSession.out = now;
         } else {
-          // ✅ New Punch IN
           sessions.push({ in: now, out: null });
         }
 
-        await fetch(`http://localhost:3001/attendance/${todayRecord.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...todayRecord,
-            sessions
-          }),
+        await updateAttendance(todayRecord.id, {
+          ...todayRecord,
+          sessions,
         });
       }
-
       await fetchTodayData();
     } catch (error) {
       console.error(error);
     }
   };
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}
-    >
-      {/* Button */}
-      <button
-        onClick={handlePunch}
-        style={{
-          padding: "12px",
-          borderRadius: "var(--border-radius-md)",
-          border: "none",
-          background: isPunchedIn ? "var(--danger)" : "var(--success)",
-          color: "#fff",
-          fontWeight: "bold",
-          cursor: "pointer",
-          transition: "var(--transition-fast)",
-        }}
-      >
-        {isPunchedIn ? "Punch Out" : "Punch In"}
-      </button>
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  };
 
-      {/* Data */}
-      <div style={{ fontSize: "14px", color: "var(--text-main)" }}>
-        <p style={{ margin: "4px 0" }}>In: {punchInTime?.toLocaleTimeString() || "--"}</p>
-        <p style={{ margin: "4px 0" }}>Out: {punchOutTime?.toLocaleTimeString() || "--"}</p>
-        <p style={{ margin: "4px 0", fontWeight: "600" }}>Worked Today: {workedHours}</p>
+  // SVG Progress Constants
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="punch-station-container">
+      <div className="punch-main-info">
+        <div className="punch-visual">
+          <svg width="90" height="90" viewBox="0 0 90 90" className="punch-svg">
+            <circle
+              cx="45"
+              cy="45"
+              r={radius}
+              fill="transparent"
+              stroke="rgba(16, 185, 129, 0.1)"
+              strokeWidth="6"
+            />
+            <circle
+              cx="45"
+              cy="45"
+              r={radius}
+              fill="transparent"
+              stroke="#10b981"
+              strokeWidth="6"
+              strokeDasharray={circumference}
+              style={{ 
+                strokeDashoffset, 
+                transition: "stroke-dashoffset 0.5s ease",
+                strokeLinecap: "round"
+              }}
+              transform="rotate(-90 45 45)"
+            />
+          </svg>
+          <div className="punch-icon-wrapper">
+            <Fingerprint size={32} />
+          </div>
+        </div>
+
+        <div className="punch-details">
+          <div className="punch-current-time">
+            {formatTime(currentTime)}
+          </div>
+          <div className={`punch-status-badge ${isPunchedIn ? 'in' : 'out'}`}>
+            {isPunchedIn ? "You are currently punched in" : "You are currently punched out"}
+          </div>
+          <div className="punch-times">
+            <span>In: {punchInTime ? formatTime(punchInTime) : "--:--:--"}</span>
+            <span>Out: {punchOutTime ? formatTime(punchOutTime) : "--:--:--"}</span>
+          </div>
+          <div className="punch-divider"></div>
+          <div className="punch-worked-today">
+            Worked Today: {workedHours}
+          </div>
+        </div>
       </div>
+
+      <button 
+        className={`punch-action-button ${isPunchedIn ? 'out' : 'in'}`}
+        onClick={handlePunch}
+      >
+        {isPunchedIn ? (
+          <>
+            <LogOut size={20} />
+            Punch Out
+          </>
+        ) : (
+          <>
+            <LogIn size={20} />
+            Punch In
+          </>
+        )}
+      </button>
     </div>
   );
 }

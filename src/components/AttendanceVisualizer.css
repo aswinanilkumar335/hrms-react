@@ -12,7 +12,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--gap-md);
 }
 
 .header-title-nav {
@@ -31,7 +31,7 @@
 .month-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap-sm);
   background: var(--bg-main);
   padding: 4px 12px;
   border-radius: 100px;
@@ -66,7 +66,7 @@
 
 .visualizer-legend {
   display: flex;
-  gap: 16px;
+  gap: var(--gap-md);
   background: var(--bg-main);
   padding: 6px 16px;
   border-radius: 100px;
@@ -102,23 +102,23 @@
 
 .days-row {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   padding: 10px 0 20px;
-  scrollbar-width: none; /* Hide scrollbar Firefox */
+  scrollbar-width: none;
   scroll-behavior: smooth;
   width: 100%;
 }
 
 .days-row::-webkit-scrollbar {
-  display: none; /* Hide scrollbar Chrome/Safari */
+  display: none;
 }
 
 .day-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-width: 32px;
   position: relative;
   padding: 4px;
@@ -157,8 +157,8 @@
 }
 
 .status-dot {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -167,52 +167,35 @@
 }
 
 .status-dot.present {
-  background: #22c55e;
-  color: white;
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+  background: #22c55e; /* Green */
 }
 
 .status-dot.late {
-  background: #f97316;
+  background: #f97316; /* Orange */
   box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
 }
 
 .status-dot.half-day {
-  background: transparent;
-  border: 3px solid #ef4444;
-  position: relative;
-  overflow: hidden;
-}
-
-.half-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 50%;
-  height: 100%;
-  background: #ef4444;
+  background: #ef4444; /* Red */
 }
 
 .status-dot.day-off {
-  background: #8b5cf6;
-  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+  background: #a855f7; /* Purple */
 }
 
-.status-dot.empty {
-  background: rgba(0, 0, 0, 0.05);
+.status-dot.holiday {
+  background: transparent;
+  border: 2px dashed #d946ef; /* Pink dashed border */
 }
 
-[data-theme='dark'] .status-dot.empty {
+.status-dot.empty,
+.status-dot.weekend {
+  background: rgba(0, 0, 0, 0.05); /* Light grey */
+}
+
+[data-theme='dark'] .status-dot.empty,
+[data-theme='dark'] .status-dot.weekend {
     background: rgba(255, 255, 255, 0.05);
-}
-
-.status-star {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #d946ef;
 }
 
 .scroll-next-btn {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './AttendanceVisualizer.css';
 
 interface Session {
@@ -95,23 +95,19 @@ const AttendanceVisualizer: React.FC<AttendanceVisualizerProps> = ({ records }) 
     { label: 'Present', color: '#22c55e' },
     { label: 'Late', color: '#f97316' },
     { label: 'Half Day', color: '#ef4444' },
-    { label: 'Day Off', color: '#8b5cf6' },
-    { label: 'Holiday', color: '#d946ef', isStar: true },
+    { label: 'Day Off', color: '#a855f7' },
+    { label: 'Holiday', color: 'transparent', isBorder: true, borderColor: '#d946ef' },
     { label: 'Weekend', color: '#e5e7eb' },
   ];
 
   const renderStatusIcon = (status: DayStatus['status']) => {
     switch (status) {
       case 'present':
-        return <div className="status-dot present"><Check size={12} strokeWidth={3} /></div>;
+        return <div className="status-dot present"></div>;
       case 'half-day':
-        return (
-          <div className="status-dot half-day">
-            <div className="half-fill"></div>
-          </div>
-        );
+        return <div className="status-dot half-day"></div>;
       case 'holiday':
-        return <div className="status-star"><Star size={12} fill="currentColor" /></div>;
+        return <div className="status-dot holiday"></div>;
       case 'weekend':
       case 'empty':
         return <div className="status-dot empty"></div>;
@@ -146,9 +142,11 @@ const AttendanceVisualizer: React.FC<AttendanceVisualizerProps> = ({ records }) 
             <div key={item.label} className="legend-item">
               <span 
                 className="legend-dot" 
-                style={{ backgroundColor: item.color }}
+                style={{ 
+                  backgroundColor: item.color,
+                  ...(item.isBorder && { border: `2px dashed ${item.borderColor}` })
+                }}
               >
-                {item.isStar && <Star size={8} fill="white" color="white" />}
               </span>
               <span className="legend-label">{item.label}</span>
             </div>

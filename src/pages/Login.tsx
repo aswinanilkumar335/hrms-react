@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, CheckCircle, User } from "lucide-react";
 import "./Login.css";
+import {
+    loginUser,
+    signupUser,
+    getUsers,
+} from "../services/authService";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -12,20 +17,18 @@ function Login() {
 
     const navigate = useNavigate();
 
-    // 🔐 LOGIN
     const handleLogin = async () => {
-        const res = await fetch("http://localhost:3001/users");
-        const users = await res.json();
+        try {
+            const user = await loginUser(email, password);
 
-        const user = users.find(
-            (u: any) => u.email === email && u.password === password
-        );
-
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user));
-            navigate("/");
-        } else {
-            alert("Invalid credentials");
+            if (user) {
+                localStorage.setItem("user", JSON.stringify(user));
+                navigate("/");
+            } else {
+                alert("Invalid credentials");
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -36,9 +39,7 @@ function Login() {
             return;
         }
 
-        const res = await fetch("http://localhost:3001/users");
-        const users = await res.json();
-
+        const users = await getUsers();
         const existingUser = users.find((u: any) => u.email === email);
 
         if (existingUser) {
@@ -48,13 +49,7 @@ function Login() {
 
         const newUser = { email, password, name };
 
-        await fetch("http://localhost:3001/users", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newUser),
-        });
+        await signupUser(newUser);
 
         setShowSuccessModal(true);
     };

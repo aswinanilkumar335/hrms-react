@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Users, Clock, Calendar, Briefcase, TrendingUp, CalendarDays } from "lucide-react";
+import { Users, Clock, Calendar, Briefcase, TrendingUp, CalendarDays, MoreVertical, Bell, CheckCircle, Info } from "lucide-react";
 import Card from "../components/Card";
 import PunchButton from "../components/PunchButton";
 import AttendanceChart from "../components/AttendanceChart";
@@ -7,8 +7,6 @@ import CalendarPopover from "../components/CalendarPopover";
 import "./Dashboard.css";
 
 function Dashboard() {
-  const [punchInTime, setPunchInTime] = useState<Date | null>(null);
-  const [punchOutTime, setPunchOutTime] = useState<Date | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const headerDateRef = useRef<HTMLDivElement>(null);
 
@@ -24,14 +22,6 @@ function Dashboard() {
       const records = await res.json();
 
       setAttendanceRecords(records); // ✅ store all data
-
-      const today = new Date().toDateString();
-      const todayRecord = records.find((r: any) => r.date === today);
-
-      if (todayRecord) {
-        setPunchInTime(todayRecord.in ? new Date(todayRecord.in) : null);
-        setPunchOutTime(todayRecord.out ? new Date(todayRecord.out) : null);
-      }
     };
 
     fetchData();
@@ -81,15 +71,15 @@ function Dashboard() {
           <p>Here's what's happening with your HR portal today.</p>
         </div>
         <div className="header-date" ref={headerDateRef}>
-          <div 
-            className={`date-text clickable ${showCalendar ? 'active' : ''}`} 
+          <div
+            className={`date-text clickable ${showCalendar ? 'active' : ''}`}
             onClick={handleCalendarClick}
           >
             <Calendar size={18} />
             {formatDate()}
           </div>
           {showCalendar && (
-            <CalendarPopover 
+            <CalendarPopover
               selectedDate={selectedDate}
               onDateSelect={setSelectedDate}
               onClose={() => setShowCalendar(false)}
@@ -98,54 +88,76 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Main Banner */}
-      <section className="welcome-banner">
-        <div className="banner-content">
-          <h2>Welcome to HRMS 2.0</h2>
-          <p>Your centralized hub for attendance, leave management, and company-wide notifications. Stay productive!</p>
-        </div>
-      </section>
+      {/* Top Section: Banner + Stats */}
+      <div className="dashboard-top-section">
+        {/* Main Banner */}
+        <section className="welcome-banner">
+          <div className="banner-content">
+            <h2>Welcome to HRMS 2.0</h2>
+            <p>Your centralized hub for attendance, leave management, and company-wide notifications. Stay productive!</p>
+          </div>
+          <div className="banner-graphic">
+            <img src="/src/assets/dashboard-preview.png" alt="Dashboard Preview" />
+          </div>
+        </section>
 
-      {/* Mini Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: "rgba(99, 102, 241, 0.1)", color: "#6366f1" }}>
-            <Users size={24} />
+        {/* Mini Stats Grid */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon-wrapper" style={{ background: "rgba(99, 102, 241, 0.1)", color: "#6366f1" }}>
+              <Users size={20} />
+            </div>
+            <div className="stat-label">Team Size</div>
+            <div className="stat-value">{attendanceRecords.length}</div>
+            <div className="stat-sub-label">Records</div>
+            <div className="stat-indicator positive">
+              <TrendingUp size={12} />
+              <span>1 new this month</span>
+            </div>
           </div>
-          <div className="stat-info">
-            <h3>Team Size</h3>
-            <p>{attendanceRecords.length} Records</p>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper" style={{ background: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
+              <CalendarDays size={20} />
+            </div>
+            <div className="stat-label">Applied Leaves</div>
+            <div className="stat-value">
+              {attendanceRecords.filter((r: any) => !r.out).length}
+            </div>
+            <div className="stat-sub-label">Active</div>
+            <div className="stat-indicator warning">
+              <span>2 pending approval</span>
+            </div>
           </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
-            <CalendarDays size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>Applied Leaves</h3>
-            <p>
-              {attendanceRecords.filter((r: any) => !r.out).length} Active
-            </p>          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b" }}>
-            <TrendingUp size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>Attendance</h3>
-            <p>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper" style={{ background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b" }}>
+              <TrendingUp size={20} />
+            </div>
+            <div className="stat-label">Attendance</div>
+            <div className="stat-value">
               {attendanceRecords.length > 0
                 ? Math.min(100, attendanceRecords.length * 10) + "%"
                 : "0%"}
-            </p>          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
-            <Clock size={24} />
+            </div>
+            <div className="stat-sub-label">This Week</div>
+            <div className="stat-indicator positive">
+              <TrendingUp size={12} />
+              <span>8% vs last week</span>
+            </div>
           </div>
-          <div className="stat-info">
-            <h3>Current Time</h3>
-            <p>{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper" style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
+              <Clock size={20} />
+            </div>
+            <div className="stat-label">Current Time</div>
+            <div className="stat-value">
+              {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+            </div>
+            <div className="stat-sub-label">
+              {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </div>
           </div>
         </div>
       </div>
@@ -153,17 +165,59 @@ function Dashboard() {
       {/* Main Grid Actions */}
       <div className="main-grid">
         <div className="main-left">
-          <Card
-            title="Attendance Insights"
-            headerAction={<div style={{ color: "var(--text-muted)", fontSize: "13px" }}>Weekly View</div>}
-          >
-            <AttendanceChart />
-          </Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <Card
+              title="Attendance Insights"
+              headerAction={<div style={{ color: "var(--text-muted)", fontSize: "13px", cursor: "pointer" }}>Weekly View</div>}
+            >
+              <AttendanceChart />
+            </Card>
+
+            <Card
+              title="Recent Notifications"
+              headerAction={<div style={{ color: "var(--primary)", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>View All</div>}
+            >
+              <div className="notifications-list">
+                <div className="notification-item">
+                  <div className="notification-icon success">
+                    <CheckCircle size={16} />
+                  </div>
+                  <div className="notification-content">
+                    <p className="notification-text">Your <strong>leave request</strong> for May 15 has been approved.</p>
+                    <span className="notification-time">2 minutes ago</span>
+                  </div>
+                </div>
+                
+                <div className="notification-item">
+                  <div className="notification-icon info">
+                    <Info size={16} />
+                  </div>
+                  <div className="notification-content">
+                    <p className="notification-text">New <strong>company policy</strong> updated in the handbook.</p>
+                    <span className="notification-time">1 hour ago</span>
+                  </div>
+                </div>
+
+                <div className="notification-item">
+                  <div className="notification-icon warning">
+                    <Bell size={16} />
+                  </div>
+                  <div className="notification-content">
+                    <p className="notification-text">Reminder: <strong>Monthly Townhall</strong> meeting at 4:00 PM.</p>
+                    <span className="notification-time">3 hours ago</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
 
         <div className="main-right">
           <div style={{ display: "flex", flexDirection: "column", gap: "24px", height: "100%" }}>
-            <Card title="Punch Station">
+            <Card
+              title="Punch Station"
+              headerAction={<MoreVertical size={18} style={{ color: "var(--text-muted)", cursor: "pointer" }} />}
+            >
               <PunchButton />
             </Card>
 
