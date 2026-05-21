@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { Users, Clock, Calendar, Briefcase, TrendingUp, CalendarDays, MoreVertical, Bell, CheckCircle, Info } from "lucide-react";
+import { Users, Clock, Calendar, Briefcase, TrendingUp, CalendarDays, MoreVertical, CheckCircle, Info, Bell } from "lucide-react";
 import Card from "../components/Card";
 import PunchButton from "../components/PunchButton";
 import AttendanceChart from "../components/AttendanceChart";
 import CalendarPopover from "../components/CalendarPopover";
 import "./Dashboard.css";
+import { getNotification } from "../services/notificationService";
+import { getTasks } from "../services/taskService";
 
 function Dashboard() {
   const [showCalendar, setShowCalendar] = useState(false);
@@ -26,6 +28,35 @@ function Dashboard() {
 
     fetchData();
   }, []);
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await getNotification();
+        setNotifications(res);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  const [tasks, setTasks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await getTasks();
+        setTasks(res);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    }
+    fetchTasks();
+  }, [])
+
 
   const [time, setTime] = useState(new Date());
 
@@ -178,35 +209,21 @@ function Dashboard() {
               headerAction={<div style={{ color: "var(--primary)", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>View All</div>}
             >
               <div className="notifications-list">
-                <div className="notification-item">
-                  <div className="notification-icon success">
-                    <CheckCircle size={16} />
+                {notifications.map((notification: any) => (
+                  <div key={notification.id} className="notification-item">
+                    <div className={`notification-icon ${notification.type || 'info'}`}>
+                      {notification.type === 'success' && <CheckCircle size={16} />}
+                      {notification.type === 'info' && <Info size={16} />}
+                      {notification.type === 'warning' && <Bell size={16} />}
+                      {!['success', 'info', 'warning'].includes(notification.type) && <Bell size={16} />}
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title">{notification.title}</div>
+                      <p className="notification-text">{notification.message}</p>
+                      <span className="notification-time">{notification.time}</span>
+                    </div>
                   </div>
-                  <div className="notification-content">
-                    <p className="notification-text">Your <strong>leave request</strong> for May 15 has been approved.</p>
-                    <span className="notification-time">2 minutes ago</span>
-                  </div>
-                </div>
-                
-                <div className="notification-item">
-                  <div className="notification-icon info">
-                    <Info size={16} />
-                  </div>
-                  <div className="notification-content">
-                    <p className="notification-text">New <strong>company policy</strong> updated in the handbook.</p>
-                    <span className="notification-time">1 hour ago</span>
-                  </div>
-                </div>
-
-                <div className="notification-item">
-                  <div className="notification-icon warning">
-                    <Bell size={16} />
-                  </div>
-                  <div className="notification-content">
-                    <p className="notification-text">Reminder: <strong>Monthly Townhall</strong> meeting at 4:00 PM.</p>
-                    <span className="notification-time">3 hours ago</span>
-                  </div>
-                </div>
+                ))}
               </div>
             </Card>
           </div>
@@ -223,14 +240,20 @@ function Dashboard() {
 
             <Card title="Quick Tasks">
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "var(--bg-main)", borderRadius: "var(--border-radius-md)" }}>
-                  <Briefcase size={18} style={{ color: "var(--primary)" }} />
-                  <span style={{ fontSize: "14px", fontWeight: "500" }}>Complete Profile</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "var(--bg-main)", borderRadius: "var(--border-radius-md)" }}>
-                  <Calendar size={18} style={{ color: "var(--success)" }} />
-                  <span style={{ fontSize: "14px", fontWeight: "500" }}>Check Holidays</span>
-                </div>
+                {tasks.map((task: any) => (
+                  <div key={task.id} className="task-item">
+                    <div className={`task-icon ${task.status === 'Completed' ? 'success' : 'pending'}`}>
+                      {task.status === 'Completed' ? <CheckCircle size={18} /> : <Briefcase size={18} />}
+                    </div>
+                    <div className="task-details">
+                      <span className={`task-title ${task.status === 'Completed' ? 'completed' : ''}`}>{task.title}</span>
+                      <div className="task-meta">
+                        <span className={`task-badge priority-${task.priority.toLowerCase()}`}>{task.priority} Priority</span>
+                        <span className={`task-badge status-${task.status.toLowerCase()}`}>{task.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </Card>
           </div>

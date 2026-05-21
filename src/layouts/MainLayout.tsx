@@ -4,12 +4,14 @@ import { Moon, Sun, LayoutDashboard, CalendarCheck, FileText, ChevronLeft, Chevr
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import "./MainLayout.css";
+import { useNavigate } from "react-router-dom";
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const userName = user?.name || "User";
+  const navigate = useNavigate();
 
   if (!user) {
     return (
@@ -82,7 +84,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
         <div className="footer-container">
           {/* User Profile */}
           {!collapsed && (
-            <div className="user-profile">
+            <div className="user-profile" onClick={() => navigate("/profile")}>
               <div className="user-avatar">
                 {userName.charAt(0)}
               </div>

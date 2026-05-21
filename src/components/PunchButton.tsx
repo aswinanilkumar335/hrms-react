@@ -14,6 +14,7 @@ function PunchButton() {
   const [workedHours, setWorkedHours] = useState<string>("--");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [progress, setProgress] = useState(0);
+  const [todaySessions, setTodaySessions] = useState<any[]>([]);
 
   // Constants
   const WORK_DAY_SECONDS = 8 * 3600;
@@ -26,11 +27,15 @@ function PunchButton() {
       
       if (isPunchedIn && punchInTime) {
         // Recalculate total seconds including current active session
-        updateRealtimeProgress(now);
+        const totalSecs = calculateTotalSeconds(todaySessions, now);
+        const hours = Math.floor(totalSecs / 3600);
+        const minutes = Math.floor((totalSecs % 3600) / 60);
+        setWorkedHours(`${hours}h ${minutes}m`);
+        setProgress(Math.min(100, (totalSecs / WORK_DAY_SECONDS) * 100));
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [isPunchedIn, punchInTime]);
+  }, [isPunchedIn, punchInTime, todaySessions]);
 
   const calculateTotalSeconds = (sessions: any[], activeSessionNow?: Date) => {
     let total = 0;
@@ -44,21 +49,6 @@ function PunchButton() {
     return total;
   };
 
-  const updateRealtimeProgress = (now: Date) => {
-    // This is called while punched in to update the ring and hours
-    getAttendance().then(records => {
-      const today = new Date().toDateString();
-      const todayRecord = records.find((r: any) => r.date === today);
-      if (todayRecord) {
-        const totalSecs = calculateTotalSeconds(todayRecord.sessions, now);
-        const hours = Math.floor(totalSecs / 3600);
-        const minutes = Math.floor((totalSecs % 3600) / 60);
-        setWorkedHours(`${hours}h ${minutes}m`);
-        setProgress(Math.min(100, (totalSecs / WORK_DAY_SECONDS) * 100));
-      }
-    });
-  };
-
   const fetchTodayData = async () => {
     try {
       const records = await getAttendance();
@@ -67,6 +57,7 @@ function PunchButton() {
 
       if (todayRecord) {
         const sessions = todayRecord.sessions || [];
+        setTodaySessions(sessions);
         const lastSession = sessions[sessions.length - 1];
 
         const punchedIn = !!(lastSession && !lastSession.out);
@@ -80,6 +71,7 @@ function PunchButton() {
         setWorkedHours(`${hours}h ${minutes}m`);
         setProgress(Math.min(100, (totalSecs / WORK_DAY_SECONDS) * 100));
       } else {
+        setTodaySessions([]);
         setIsPunchedIn(false);
         setPunchInTime(null);
         setPunchOutTime(null);

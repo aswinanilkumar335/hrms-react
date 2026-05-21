@@ -151,10 +151,38 @@
       "sessions": [
         {
           "in": "2026-05-12T04:37:52.418Z",
+          "out": "2026-05-12T08:31:20.014Z"
+        },
+        {
+          "in": "2026-05-12T08:31:23.878Z",
+          "out": "2026-05-12T11:17:23.030Z"
+        },
+        {
+          "in": "2026-05-12T11:17:25.400Z",
           "out": null
         }
       ],
       "id": 8
+    },
+    {
+      "date": "Wed May 13 2026",
+      "sessions": [
+        {
+          "in": "2026-05-13T04:01:49.993Z",
+          "out": null
+        }
+      ],
+      "id": 9
+    },
+    {
+      "date": "Thu May 14 2026",
+      "sessions": [
+        {
+          "in": "2026-05-14T04:07:35.640Z",
+          "out": null
+        }
+      ],
+      "id": 10
     }
   ],
   "users": [
@@ -162,19 +190,37 @@
       "id": 1,
       "email": "admin@gmail.com",
       "password": "123456",
-      "name": "Admin User"
+      "name": "Admin User",
+      "role": "Admin",
+      "department": "IT",
+      "phone": "1234567890",
+      "location": "Chennai",
+      "employeeId": "1",
+      "joinDate": "2026-03-10"
     },
     {
       "email": "adfff@gmail.com",
       "password": "123456",
       "name": "Aswin",
-      "id": 2
+      "id": 2,
+      "role": "Employee",
+      "department": "IT",
+      "phone": "1234567890",
+      "location": "Chennai",
+      "employeeId": "2",
+      "joinDate": "2026-03-10"
     },
     {
       "email": "abc@gmail.com",
       "password": "235689",
       "name": "Abc",
-      "id": 3
+      "id": 3,
+      "role": "Employee",
+      "department": "HR",
+      "phone": "1234567890",
+      "location": "Chennai",
+      "employeeId": "3",
+      "joinDate": "2026-03-10"
     }
   ],
   "leaves": [
@@ -214,5 +260,48 @@
     "casual": 10,
     "paid": 18,
     "unpaid": 0
-  }
+  },
+  "notifications": [
+    {
+      "id": 1,
+      "title": "Leave Approved",
+      "message": "Your leave request for May 15 has been approved.",
+      "time": "2 minutes ago",
+      "type": "success"
+    },
+    {
+      "id": 2,
+      "title": "Policy Update",
+      "message": "Company handbook has been updated.",
+      "time": "1 hour ago",
+      "type": "info"
+    },
+    {
+      "id": 3,
+      "title": "Meeting Reminder",
+      "message": "Monthly townhall meeting at 4:00 PM.",
+      "time": "3 hours ago",
+      "type": "warning"
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Complete Profile",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": 2,
+      "title": "Upload Documents",
+      "status": "Pending",
+      "priority": "High"
+    },
+    {
+      "id": 3,
+      "title": "Check Holiday Calendar",
+      "status": "Completed",
+      "priority": "Low"
+    }
+  ]
 }

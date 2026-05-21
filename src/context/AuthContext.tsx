@@ -9,6 +9,13 @@ interface User {
     id?: number;
     email: string;
     name: string;
+    role: string;
+    department: string;
+    employeeId: string;
+    phone: string;
+    location: string;
+    status: string;
+    joinDate: string;
 }
 
 interface AuthContextType {
