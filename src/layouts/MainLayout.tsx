@@ -10,7 +10,8 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
-  const userName = user?.name || "User";
+  const userName = user?.firstName + " " + user?.lastName;
+  const role = user?.role;
   const navigate = useNavigate();
 
   if (!user) {
@@ -90,7 +91,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="user-info">
                 <span className="user-name">{userName}</span>
-                <span className="user-role">Employee</span>
+                <span className="user-role">{role}</span>
               </div>
             </div>
           )}

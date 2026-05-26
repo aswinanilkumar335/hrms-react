@@ -200,6 +200,7 @@
   padding: 10px;
   border-radius: 12px;
   margin-bottom: 8px;
+  cursor: pointer;
 }
 
 .user-avatar,

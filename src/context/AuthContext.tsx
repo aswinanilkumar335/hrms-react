@@ -8,7 +8,8 @@ import {
 interface User {
     id?: number;
     email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     role: string;
     department: string;
     employeeId: string;
@@ -16,6 +17,9 @@ interface User {
     location: string;
     status: string;
     joinDate: string;
+    gender?: string;
+    dateOfBirth?: string;
+    address?: string;
 }
 
 interface AuthContextType {
